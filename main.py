@@ -54,7 +54,14 @@ class NHLScraper:
 
         #https://statsapi.web.nhl.com/api/v1/people/8473512?hydrate=stats(splits=statsSingleSeason)&season=20152016
     
-   
+    #data object: using a namedTuple
+    playerSeasonRecord = namedtuple('playerSeasonRecord', 'playerID, playerName,\
+     season, playedGames, goals, assists, whatever, whatever2')
+    # setting defaults for empty fields: using None which in .csv -> '' empty string
+    # can set defaults in SQL import. 
+    playerSeasonRecord.__new__.__defaults__ = (None,) * len(playerSeasonRecord._fields)
+
+
 # class playerSeasonRecord:
 #     def __init__(self, playerID, playerName, season, playedGames, goals, assists):
 #         self.playerID = playerID
@@ -112,13 +119,6 @@ class NHLScraper:
             # powerPlaySavePercentage: 85.89211618257261,
             # shortHandedSavePercentage: 91.83673469387756,
             # evenStrengthSavePercentage: 92.2752808988764
- #data object: using a namedTuple; allows named or positional assignment, lightweight, easy to assign & write to CSV; immutable
-    playerSeasonRecord = namedtuple('playerSeasonRecord', 'playerID, playerName,\
-     season, playedGames, goals, assists, whatever, whatever2')
-    # setting defaults for empty fields: using None which in .csv -> '' empty string
-    # can set defaults in SQL import. 
-    playerSeasonRecord.__new__.__defaults__ = (None,) * len(playerSeasonRecord._fields)
-
 
 
 # helper: build a api-season string: 2017 -> 20172018
@@ -142,13 +142,11 @@ if __name__ == "__main__":
                     print("empty")
                     continue
                 if playerStats['primaryPosition']['code'] == 'G':
-                    # p = scraper.playerSeasonRecord(playerStats['id'], playerStats['lastName'], playerStats['stats'][0]['splits'][0]['season'], playerStats['stats'][0]['splits'][0]['stat']['games'], playerStats['stats'][0]['splits'][0]['stat']['goals'], playerStats['stats'][0]['splits'][0]['stat']['assists'])
+                    
                     continue
                 else:
                     print(playerStats['stats'][0]['splits'])
-                    p = scraper.playerSeasonRecord(playerID = playerStats['id'], playerName = playerStats['lastName'],\
-                        season = playerStats['stats'][0]['splits'][0]['season'], playedGames = playerStats['stats'][0]['splits'][0]['stat']['games'],\
-                        goals = playerStats['stats'][0]['splits'][0]['stat']['goals'], assists = playerStats['stats'][0]['splits'][0]['stat']['assists'])
+                    p = scraper.playerSeasonRecord(playerStats['id'], playerStats['lastName'], playerStats['stats'][0]['splits'][0]['season'], playerStats['stats'][0]['splits'][0]['stat']['games'], playerStats['stats'][0]['splits'][0]['stat']['goals'], playerStats['stats'][0]['splits'][0]['stat']['assists'])
                     playerDataArray.append(p)
                 playerCounter += 1
     #Write data to CSV
