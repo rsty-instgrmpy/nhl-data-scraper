@@ -60,7 +60,7 @@
 #       goals, assists, points, shotPct, faceOffPct, plusMinus, gameWinningGoals,\
 #        powerPlayGoals, powerPlayPoints, pim, timeOnIcePerGame, powerPlayTimeOnIcePerGame,\
 #         gamesStarted, games, wins, losses, shutouts, saves, savePercentage,\
-#          goalsAgainstAverage, shotsAgainst, goalsAgainst, powerPlaySavePercentage,\
+#          goalAgainstAverage, shotsAgainst, goalsAgainst, powerPlaySavePercentage,\
 #           shortHandedSavePercentage, evenStrengthSavePercentage')
 
 #  #data object: using a namedTuple; allows named or positional assignment, lightweight, easy to assign & write to CSV; immutable
@@ -171,7 +171,7 @@ class NHLScraper:
 
         #https://statsapi.web.nhl.com/api/v1/people/8473512?hydrate=stats(splits=statsSingleSeason)&season=20152016
 
-    playerSeasonRecord = namedtuple('playerSeasonRecord', 'playerID, firstName, lastName, currentTeam, position, currentAge, birthDate, season, playedGames,goals, assists, points, shotPct, faceOffPct, plusMinus, gameWinningGoals,powerPlayGoals, powerPlayPoints, pim, timeOnIcePerGame, powerPlayTimeOnIcePerGame, gamesStarted, games, wins, losses, shutouts, saves, savePercentage, goalsAgainstAverage, shotsAgainst, goalsAgainst, powerPlaySavePercentage, shortHandedSavePercentage, evenStrengthSavePercentage')
+    playerSeasonRecord = namedtuple('playerSeasonRecord', 'playerID, firstName, lastName, currentTeam, position, currentAge, birthDate, season, playedGames,goals, assists, points, shotPct, faceOffPct, plusMinus, gameWinningGoals,powerPlayGoals, powerPlayPoints, pim, timeOnIcePerGame, powerPlayTimeOnIcePerGame, gamesStarted, games, wins, losses, shutouts, saves, savePercentage, goalAgainstAverage, shotsAgainst, goalsAgainst, powerPlaySavePercentage, shortHandedSavePercentage, evenStrengthSavePercentage')
 
  #data object: using a namedTuple; allows named or positional assignment, lightweight, easy to assign & write to CSV; immutable
     # setting defaults for empty fields: using None which in .csv -> '' empty string
@@ -192,43 +192,41 @@ if __name__ == "__main__":
     response = scraper.getTeams()
     json = response.json()
     playerCounter = 0
-    teamCounter = 0
     playerDataArray = list()
     counter = 0
-    for field in scraper.playerSeasonRecord._fields:
-        print(field)
-
-    # ('playerID', 'firstName', 'lastName', 'position', 'currentAge', 'birthDate', 'season', 'playedGames', 'goals', 'assists', 'points', 'shotPct', 'faceOffPct', 'plusMinus', 'gameWinningGoals', 'powerPlayGoals', 'powerPlayPoints', 'pim','timeOnIcePerGame', 'powerPlayTimeOnIcePerGame', 'gamesStarted', 'games', 'wins', 'losses', 'shutouts', 'saves', 'savePercentage', 'goalsAgainstAverage', 'shotsAgainst', 'goalsAgainst', 'powerPlaySavePercentage', 'shortHandedSavePercentage', 'evenStrengthSavePercentage')
     for row in json['teams']:
-        print("team: ",row['id'])
-        roster = scraper.getPlayersFromTeam(row['id'], getSeason(2017)).json()['roster']
-        # print(roster[1]) 
-        for row in roster:
-            print(row['person']['id'])
-            #     print()
-            # for key, value in roster.items:
-            #     print(key)
-            #     print(value)
-        #             print(roster)
-            #   print(key, value)#['person']['id'])
-            playerStats = scraper.getPlayerStats(row['person']['id'], getSeason(2017)).json()['people'][0]
-            if not playerStats['stats'][0]['splits']:
-                print("empty")
-                continue
-            if playerStats['primaryPosition']['code'] == 'G':
-            # p = scraper.playerSeasonRecord(playerID = playerStats['id'], firstName = playerStats['firstName'], lastName = playerStats['lastName'] ,\
-            #     position = playerStats['primaryPosition'], currentAge = playerStats['currentAge'], birthDate = playerStats['birthDate'],\
-            #     #### stats ####
-            #     season = playerStats['stats'][0]['splits'][0]['season'], gamesStarted = playerStats['stats'][0]['splits'][0]['stat']['gamesStarted'],\
-            #     games = playerStats['stats'][0]['splits'][0]['stat']['games'],\
-            #     wins = playerStats['stats'][0]['splits'][0]['stat']['wins'], losses = playerStats['stats'][0]['splits'][0]['stat']['wins'],\
-            #     shutouts = playerStats['stats'][0]['splits'][0]['stat']['shutouts'], saves = playerStats['stats'][0]['splits'][0]['stat']['saves'],\
-            #     savePercentage = playerStats['stats'][0]['splits'][0]['stat']['savePercentage'], goalsAgainstAverage = playerStats['stats'][0]['splits'][0]['stat']['goalsAgainstAverage'],\
-            #     shotsAgainst = playerStats['stats'][0]['splits'][0]['stat']['shotsAgainst'], goalsAgainst = playerStats['stats'][0]['splits'][0]['stat']['goalsAgainst'],\
-            #     powerPlaySavePercentage = playerStats['stats'][0]['splits'][0]['stat']['powerPlaySavePercentage'], shortHandedSavePercentage = playerStats['stats'][0]['splits'][0]['stat']['shortHandedSavePercentage'],\
-            #     evenStrengthSavePercentage = playerStats['stats'][0]['splits'][0]['stat']['evenStrengthSavePercentage'])
-            # playerDataArray.append(p)
-                continue
+        while playerCounter < 80:
+            for roster in scraper.getPlayersFromTeam(row['id'], getSeason(2017)).json()['roster']:
+                playerStats = scraper.getPlayerStats(roster['person']['id'], getSeason(2017)).json()['people'][0]
+                if not playerStats['stats'][0]['splits']:
+                    print("empty")
+                    continue
+
+                if playerStats['primaryPosition']['code'] == 'G':
+                    p = scraper.playerSeasonRecord(playerID = playerStats['id'], firstName = playerStats['firstName'], lastName = playerStats['lastName'] ,\
+                        position = playerStats['primaryPosition']['abbreviation'], birthDate = playerStats['birthDate'],\
+                        #### stats ####
+                        season = playerStats['stats'][0]['splits'][0]['season'], gamesStarted = playerStats['stats'][0]['splits'][0]['stat']['gamesStarted'],\
+                        games = playerStats['stats'][0]['splits'][0]['stat']['games'],\
+                        wins = playerStats['stats'][0]['splits'][0]['stat']['wins'], losses = playerStats['stats'][0]['splits'][0]['stat']['wins'],\
+                        shutouts = playerStats['stats'][0]['splits'][0]['stat']['shutouts'], saves = playerStats['stats'][0]['splits'][0]['stat']['saves'],\
+                        savePercentage = playerStats['stats'][0]['splits'][0]['stat']['savePercentage'], goalAgainstAverage = playerStats['stats'][0]['splits'][0]['stat']['goalAgainstAverage'],\
+                        shotsAgainst = playerStats['stats'][0]['splits'][0]['stat']['shotsAgainst'], goalsAgainst = playerStats['stats'][0]['splits'][0]['stat']['goalsAgainst'],\
+                        powerPlaySavePercentage = playerStats['stats'][0]['splits'][0]['stat']['powerPlaySavePercentage'], shortHandedSavePercentage = playerStats['stats'][0]['splits'][0]['stat']['shortHandedSavePercentage'],\
+                        evenStrengthSavePercentage = playerStats['stats'][0]['splits'][0]['stat']['evenStrengthSavePercentage'])
+
+                    try:
+                        p = p._replace(currentTeam = playerStats['currentTeam']['name'])
+                    except KeyError:
+                        pass
+
+                    try:
+                        p = p._replace(currentAge = playerStats['currentAge'])
+                    except KeyError:
+                        pass
+
+                    playerDataArray.append(p)
+                    continue
 
             
 # playerSeasonRecord = namedtuple('playerSeasonRecord', 'playerID, firstName,\
@@ -236,37 +234,45 @@ if __name__ == "__main__":
 #   goals, assists, points, shotPct, faceOffPct, plusMinus, gameWinningGoals,\
 #    powerPlayGoals, powerPlayPoints, pim, timeOnIcePerGame, powerPlayTimeOnIcePerGame,\
 #     gamesStarted, games, wins, losses, shutouts, saves, savePercentage,\
-#      goalsAgainstAverage, shotsAgainst, goalsAgainst, powerPlaySavePercentage,\
+#      goalAgainstAverage, shotsAgainst, goalsAgainst, powerPlaySavePercentage,\
 #       shortHandedSavePercentage, evenStrengthSavePercentage')
 
 
-            else:
-                print("data")
-                p = scraper.playerSeasonRecord(playerID = playerStats['id'],\
-                    firstName = playerStats['firstName'], lastName = playerStats['lastName'] ,\
-                    # currentTeam = playerStats['currentTeam']['name'],\
-                    position = playerStats['primaryPosition']['abbreviation'],\
-                    birthDate = playerStats['birthDate'])
-                try:
-                    print("giving it a try")
-                    p._replace(currentAge = playerStats['currentAge'])
-                    print("aged")
-                except KeyError:
-                    p._replace(currentAge = "ageless")
-                    print("keyerrorrr")
+                else:
+                    print("data")
+                    p = scraper.playerSeasonRecord(playerID = playerStats['id'],\
+                        firstName = playerStats['firstName'], lastName = playerStats['lastName'] ,\
+                        # currentTeam = playerStats['currentTeam']['name'],\
+                        position = playerStats['primaryPosition']['abbreviation'],\
+                        birthDate = playerStats['birthDate'], \
+                        season = playerStats['stats'][0]['splits'][0]['season'], playedGames = playerStats['stats'][0]['splits'][0]['stat']['games'],\
+                        goals = playerStats['stats'][0]['splits'][0]['stat']['goals'], assists = playerStats['stats'][0]['splits'][0]['stat']['assists'],\
+                        points = playerStats['stats'][0]['splits'][0]['stat']['points'], shotPct = playerStats['stats'][0]['splits'][0]['stat']['shotPct'],\
+                        faceOffPct = playerStats['stats'][0]['splits'][0]['stat']['faceOffPct'], gameWinningGoals = playerStats['stats'][0]['splits'][0]['stat']['gameWinningGoals'],\
+                        powerPlayGoals = playerStats['stats'][0]['splits'][0]['stat']['powerPlayGoals'], powerPlayPoints = playerStats['stats'][0]['splits'][0]['stat']['powerPlayPoints'],\
+                        pim = playerStats['stats'][0]['splits'][0]['stat']['pim'],timeOnIcePerGame = playerStats['stats'][0]['splits'][0]['stat']['timeOnIcePerGame'],\
+                        powerPlayTimeOnIcePerGame = playerStats['stats'][0]['splits'][0]['stat']['powerPlayTimeOnIcePerGame'])
+                    try:
+                        p = p._replace(currentTeam = playerStats['currentTeam']['name'])
+                    except KeyError:
+                        pass
 
-                p._replace(season = playerStats['stats'][0]['splits'][0]['season'], playedGames = playerStats['stats'][0]['splits'][0]['stat']['games'],\
-                    goals = playerStats['stats'][0]['splits'][0]['stat']['goals'], assists = playerStats['stats'][0]['splits'][0]['stat']['assists'],\
-                    points = playerStats['stats'][0]['splits'][0]['stat']['points'], shotPct = playerStats['stats'][0]['splits'][0]['stat']['shotPct'],\
-                    faceOffPct = playerStats['stats'][0]['splits'][0]['stat']['faceOffPct'], gameWinningGoals = playerStats['stats'][0]['splits'][0]['stat']['gameWinningGoals'],\
-                    powerPlayGoals = playerStats['stats'][0]['splits'][0]['stat']['powerPlayGoals'], powerPlayPoints = playerStats['stats'][0]['splits'][0]['stat']['powerPlayPoints'],\
-                    pim = playerStats['stats'][0]['splits'][0]['stat']['pim'],timeOnIcePerGame = playerStats['stats'][0]['splits'][0]['stat']['timeOnIcePerGame'],\
-                    powerPlayTimeOnIcePerGame = playerStats['stats'][0]['splits'][0]['stat']['powerPlayTimeOnIcePerGame'])
-                playerDataArray.append(p)
-            playerCounter += 1
-        teamCounter += 1
-        if teamCounter > 1:
-            break
+                    try:
+                        p = p._replace(currentAge = playerStats['currentAge'])
+                    except KeyError:
+                        pass
+                    
+
+
+                    # p._replace(season = playerStats['stats'][0]['splits'][0]['season'], playedGames = playerStats['stats'][0]['splits'][0]['stat']['games'],\
+                    #     goals = playerStats['stats'][0]['splits'][0]['stat']['goals'], assists = playerStats['stats'][0]['splits'][0]['stat']['assists'],\
+                    #     points = playerStats['stats'][0]['splits'][0]['stat']['points'], shotPct = playerStats['stats'][0]['splits'][0]['stat']['shotPct'],\
+                    #     faceOffPct = playerStats['stats'][0]['splits'][0]['stat']['faceOffPct'], gameWinningGoals = playerStats['stats'][0]['splits'][0]['stat']['gameWinningGoals'],\
+                    #     powerPlayGoals = playerStats['stats'][0]['splits'][0]['stat']['powerPlayGoals'], powerPlayPoints = playerStats['stats'][0]['splits'][0]['stat']['powerPlayPoints'],\
+                    #     pim = playerStats['stats'][0]['splits'][0]['stat']['pim'],timeOnIcePerGame = playerStats['stats'][0]['splits'][0]['stat']['timeOnIcePerGame'],\
+                    #     powerPlayTimeOnIcePerGame = playerStats['stats'][0]['splits'][0]['stat']['powerPlayTimeOnIcePerGame'])
+                    playerDataArray.append(p)
+                playerCounter += 1
     #### Write data to CSV
     file = r'C:\Users\simco\nhl-project\data.csv'
     with open( file, 'w', newline='', encoding='utf8') as csvFile:
@@ -274,44 +280,4 @@ if __name__ == "__main__":
         for row in playerDataArray:
             print(row)
             writer.writerow(row)
-
-
-
-    
-
-                
-                
-    
-
-    # results = scraper.getPlayStats(8479366,getSeason(2017)).json()['people']
-    # if not results[0]['stats'][0]['splits'] :
-    #     print("it's empty")
-    # else:
-    #     print(results[0]['stats'][0]['splits'])
-
-    # get teams
-        # for each team, get players for season 2017-2018
-            # for each player, get stats -- if available -- from season 2015-2017
-
-
-    # playerSeason = playerSeasonRecord(results[0]['id'], results[0]['fullName'], results[0]['stats'][0]['splits'][0]['season'])
-
-    # null  data: response['people'][0][stats][0]['splits']
-    # handle: if not response['people'][0][stats][0]['splits']:
-    #             populate object
-
-
-    # print(playerSeason.playerID)
-    # print(playerSeason.playerName)
-    # print(playerSeason.playerSeason)
-    # print(playerSeason.timeOnIce)
-
-
-    # playerSeasonRecord(results['people']['id'], results['people']['fullName'], results[people][stats])
-        
-    
-
-    # print (scraper.getPlayersFromTeam(5, seasons[0]).json()['roster'][0]['person'])
-
-    # for i in seasons:
-    #     print(i)
+            
