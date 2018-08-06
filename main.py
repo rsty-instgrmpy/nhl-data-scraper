@@ -37,9 +37,6 @@ class NHLScraper:
     roster = 'roster'
     season = 'season'
 
-    playerReq = requests.get(baseURL+'/'+'/'+player+'/8479986')
-    print(playerReq.json()['people'][0]['firstName'])
-
     def getTeams(self):
         url = '%s/%s' % (self.baseURL, self.teamsURL)
         result = requests.get(url)
@@ -102,7 +99,6 @@ if __name__ == "__main__":
                         shotsAgainst = playerStats['stats'][0]['splits'][0]['stat']['shotsAgainst'], goalsAgainst = playerStats['stats'][0]['splits'][0]['stat']['goalsAgainst'],\
                         powerPlaySavePercentage = playerStats['stats'][0]['splits'][0]['stat']['powerPlaySavePercentage'], shortHandedSavePercentage = playerStats['stats'][0]['splits'][0]['stat']['shortHandedSavePercentage'],\
                         evenStrengthSavePercentage = playerStats['stats'][0]['splits'][0]['stat']['evenStrengthSavePercentage'])
-
                     try:
                         p = p._replace(currentTeam = playerStats['currentTeam']['name'])
                     except KeyError:
@@ -114,8 +110,6 @@ if __name__ == "__main__":
                         pass
 
                     playerDataArray.append(p)
-                    continue
-
 
                 else:
                     print("data")
@@ -140,16 +134,7 @@ if __name__ == "__main__":
                         p = p._replace(currentAge = playerStats['currentAge'])
                     except KeyError:
                         pass
-                    
 
-
-                    # p._replace(season = playerStats['stats'][0]['splits'][0]['season'], playedGames = playerStats['stats'][0]['splits'][0]['stat']['games'],\
-                    #     goals = playerStats['stats'][0]['splits'][0]['stat']['goals'], assists = playerStats['stats'][0]['splits'][0]['stat']['assists'],\
-                    #     points = playerStats['stats'][0]['splits'][0]['stat']['points'], shotPct = playerStats['stats'][0]['splits'][0]['stat']['shotPct'],\
-                    #     faceOffPct = playerStats['stats'][0]['splits'][0]['stat']['faceOffPct'], gameWinningGoals = playerStats['stats'][0]['splits'][0]['stat']['gameWinningGoals'],\
-                    #     powerPlayGoals = playerStats['stats'][0]['splits'][0]['stat']['powerPlayGoals'], powerPlayPoints = playerStats['stats'][0]['splits'][0]['stat']['powerPlayPoints'],\
-                    #     pim = playerStats['stats'][0]['splits'][0]['stat']['pim'],timeOnIcePerGame = playerStats['stats'][0]['splits'][0]['stat']['timeOnIcePerGame'],\
-                    #     powerPlayTimeOnIcePerGame = playerStats['stats'][0]['splits'][0]['stat']['powerPlayTimeOnIcePerGame'])
                     playerDataArray.append(p)
                 playerCounter += 1
     #### Write data to CSV
