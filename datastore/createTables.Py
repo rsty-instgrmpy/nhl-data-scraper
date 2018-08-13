@@ -20,10 +20,13 @@ def create_table(conn, sql_script):
 def main():
     database = "C:\\sqlite\\db\\nhl.db"
 
+
+    sql_drop_playerseason = """DROP TABLE IF EXISTS playerseason;"""
     sql_create_playerSeasonRecord_table = """CREATE TABLE IF NOT EXISTS playerseason (
         playerID integer NOT NULL,
         firstName text NOT NULL,
         lastName text NOT NULL,
+        seasonTeam text,
         currentTeam text,
         position text,
         currentAge integer,
@@ -60,6 +63,7 @@ def main():
 
     conn = create_connection(database)
     if conn is not None:
+        create_table(conn, sql_drop_playerseason)
         create_table(conn, sql_create_playerSeasonRecord_table)
 
 if __name__ == '__main__':
