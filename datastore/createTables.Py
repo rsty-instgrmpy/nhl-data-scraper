@@ -7,7 +7,6 @@ def create_connection(db_file):
         return conn
     except Error as e:
         print(e)
-    
     return None
 
 def create_table(conn, sql_script):
@@ -16,10 +15,9 @@ def create_table(conn, sql_script):
         c.execute(sql_script)
     except Error as e:
         print(e)
+database = "C:\\sqlite\\db\\nhl.db"
 
 def main():
-    database = "C:\\sqlite\\db\\nhl.db"
-
 
     sql_drop_playerseason = """DROP TABLE IF EXISTS playerseason;"""
     sql_create_playerSeasonRecord_table = """CREATE TABLE IF NOT EXISTS playerseason (
@@ -58,13 +56,16 @@ def main():
         powerPlaySavePercentage real, 
         shortHandedSavePercentage real, 
         evenStrengthSavePercentage real,
-        PRIMARY KEY(playerID, season)
+        PRIMARY KEY(playerID, season, seasonTeam)
     );"""
 
     conn = create_connection(database)
     if conn is not None:
+        print("Connected to database; working..")
         create_table(conn, sql_drop_playerseason)
+        print("table dropped")
         create_table(conn, sql_create_playerSeasonRecord_table)
+        print("table created")
 
 if __name__ == '__main__':
     main()
